@@ -15,33 +15,33 @@ export default function App() {
       .then((response) => response.json())
       .then((data) => {
         setQuestions(
-          data.results.map((q) => {
-            return {
-              id: nanoid(),
-              type: q.type,
-              question: q.question,
-              choices: [
-                ...q.incorrect_answers.map((choice) => ({
-                  choice: choice,
-                  id: nanoid(),
-                  isChosen: false,
-                  isCorrect: false,
-                })),
-                {
-                  choice: q.correct_answer,
-                  id: nanoid(),
-                  isChosen: false,
-                  isCorrect: true,
-                },
-              ],
-            };
-          })
+          data.results
+            .map((q) => {
+              return {
+                id: nanoid(),
+                type: q.type,
+                question: q.question,
+                choices: [
+                  ...q.incorrect_answers.map((choice) => ({
+                    choice: choice,
+                    id: nanoid(),
+                    isChosen: false,
+                    isCorrect: false,
+                  })),
+                  {
+                    choice: q.correct_answer,
+                    id: nanoid(),
+                    isChosen: false,
+                    isCorrect: true,
+                  },
+                ],
+              };
+            })
+            .sort((a, b) => 0.5 - Math.random())
         );
         setLoaded(true);
       });
   }, [replay]);
-
-  // mix up the arrays, but only if type !== boolean
 
   function handleStart() {
     setStart(true);

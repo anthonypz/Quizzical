@@ -8,7 +8,13 @@ export default function QuizScreen({ data, isDone, handleDone }) {
         dangerouslySetInnerHTML={{ __html: data.question }}
       />
       {data.choices.map((i) => {
-        return <button>{i.choice}</button>;
+        return (
+          <button
+            className="quiz-choices"
+            key={i.id}
+            dangerouslySetInnerHTML={{ __html: i.choice }}
+          />
+        );
       })}
     </div>
   ));
