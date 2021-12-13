@@ -9,6 +9,7 @@ export default function App() {
   const [loaded, setLoaded] = React.useState(false);
   const [isDone, setIsDone] = React.useState(false);
   const [replay, setReplay] = React.useState(false);
+  const [score, setScore] = React.useState(0);
 
   //Grab data from the API and organize it into state
   React.useEffect(() => {
@@ -76,11 +77,28 @@ export default function App() {
     });
   }
 
-  function handleDone() {
-    if (isDone) {
-      setReplay(true);
+  function calculateScore() {
+    for (let i = 0; i < questions.length; i++) {
+      for (let j = 0; j < questions[i].choices.length; j++) {
+        if (
+          questions[i].choices[j].isChosen &&
+          questions[i].choices[j].isCorrect
+        ) {
+          setScore((prevScore) => prevScore + 1);
+        }
+      }
     }
+  }
+
+  function handleDone() {
+    calculateScore();
     setIsDone(true);
+  }
+
+  function handleReplay() {
+    setIsDone(false);
+    setScore(0);
+    setReplay((prevReplay) => !prevReplay);
   }
 
   return (
@@ -90,7 +108,9 @@ export default function App() {
           data={questions}
           isDone={isDone}
           handleDone={handleDone}
+          handleReplay={handleReplay}
           handleButton={handleButton}
+          score={score}
         />
       ) : (
         <WelcomeScreen handleClick={handleStart} />

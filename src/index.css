@@ -91,7 +91,7 @@ body {
 }
 
 .quiz-choices:hover {
-  border: 1px solid #94d7a2;
+  border: 1px solid #3ca551;
 }
 
 .quiz-btn {
@@ -105,6 +105,12 @@ body {
   font-weight: 600;
   border: none;
   cursor: pointer;
+}
+
+.final-score {
+  font-family: Inter;
+  font-weight: bold;
+  margin-bottom: 0;
 }
 
 @media screen and (min-width: 500px) {
