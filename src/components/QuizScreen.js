@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function QuizScreen({ data, isDone, handleDone }) {
+export default function QuizScreen({ data, isDone, handleDone, handleButton }) {
   const questions = data.map((data) => (
     <div key={data.id} className="quiz-question-group">
       <p
@@ -12,6 +12,11 @@ export default function QuizScreen({ data, isDone, handleDone }) {
           <button
             className="quiz-choices"
             key={i.id}
+            style={{
+              backgroundColor: i.isChosen ? "#D6DBF5" : "#f5f7fb",
+            }}
+            onClick={(e) => handleButton(e, i.id)}
+            name={data.id}
             dangerouslySetInnerHTML={{ __html: i.choice }}
           />
         );
