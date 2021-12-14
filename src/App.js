@@ -97,13 +97,14 @@ export default function App() {
 
   function handleReplay() {
     setIsDone(false);
+    setLoaded(false);
     setScore(0);
     setReplay((prevReplay) => !prevReplay);
   }
 
   return (
     <>
-      {start && loaded ? (
+      {start ? (
         <QuizScreen
           data={questions}
           isDone={isDone}
@@ -111,6 +112,7 @@ export default function App() {
           handleReplay={handleReplay}
           handleButton={handleButton}
           score={score}
+          loaded={loaded}
         />
       ) : (
         <WelcomeScreen handleClick={handleStart} />
