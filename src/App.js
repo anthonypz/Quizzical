@@ -13,32 +13,30 @@ export default function App() {
 
   //Grab data from the API and organize it into state
   React.useEffect(() => {
-    fetch("https://opentdb.com/api.php?amount=5&category=9")
+    fetch("https://opentdb.com/api.php?amount=5&difficulty=easy")
       .then((response) => response.json())
       .then((data) => {
         setQuestions(
-          data.results
-            .map((question) => {
-              return {
-                id: nanoid(),
-                question: question.question,
-                choices: [
-                  ...question.incorrect_answers.map((choice) => ({
-                    choice: choice,
-                    id: nanoid(),
-                    isChosen: false,
-                    isCorrect: false,
-                  })),
-                  {
-                    choice: question.correct_answer,
-                    id: nanoid(),
-                    isChosen: false,
-                    isCorrect: true,
-                  },
-                ],
-              };
-            })
-            .sort((a, b) => 0.5 - Math.random())
+          data.results.map((question) => {
+            return {
+              id: nanoid(),
+              question: question.question,
+              choices: [
+                ...question.incorrect_answers.map((choice) => ({
+                  choice: choice,
+                  id: nanoid(),
+                  isChosen: false,
+                  isCorrect: false,
+                })),
+                {
+                  choice: question.correct_answer,
+                  id: nanoid(),
+                  isChosen: false,
+                  isCorrect: true,
+                },
+              ].sort((a, b) => 0.5 - Math.random()),
+            };
+          })
         );
         setLoaded(true);
       });
