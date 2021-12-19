@@ -4,8 +4,8 @@ A trivia game that generates 5 random questions. Built with React. It uses the [
 
 ## Screenshots
 
-<img src="https://github.com/anthonypz/quizzical/blob/main/docs/images/quote.png">
-<img src="https://github.com/anthonypz/quizzical/blob/main/docs/images/quote.png">
+
+<img src="https://github.com/anthonypz/quizzical/blob/main/docs/images/quizzical.png" width=200> <img src="https://github.com/anthonypz/quizzical/blob/main/docs/images/quizzical2.png" width=200>
 
 ## Run Locally
 
