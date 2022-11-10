@@ -1,120 +1,81 @@
-import React from "react";
-import { nanoid } from "nanoid";
-import WelcomeScreen from "./components/WelcomeScreen";
-import QuizScreen from "./components/QuizScreen";
+import React from 'react'
+import { nanoid } from 'nanoid'
+import WelcomeScreen from './components/WelcomeScreen'
+import QuizScreen from './components/QuizScreen'
 
 export default function App() {
-  const [questions, setQuestions] = React.useState();
-  const [start, setStart] = React.useState(false);
-  const [loaded, setLoaded] = React.useState(false);
-  const [isDone, setIsDone] = React.useState(false);
-  const [replay, setReplay] = React.useState(false);
-  const [score, setScore] = React.useState(0);
+  const [start, setStart] = React.useState(false)
+  const [triviaData, setTriviaData] = React.useState([]) // [{}, {}]
+  const [answers, setAnswers] = React.useState({}) // {question0: "True", question1: "False"}
+  const [gameOver, setGameOver] = React.useState(false)
+  const [score, setScore] = React.useState(0)
+  const [replay, setReplay] = React.useState(false)
 
-  //Grab data from the API and organize it into state
   React.useEffect(() => {
-    fetch("https://opentdb.com/api.php?amount=5&difficulty=easy")
+    fetch('https://opentdb.com/api.php?amount=5')
       .then((response) => response.json())
       .then((data) => {
-        setQuestions(
-          data.results.map((question) => {
-            return {
-              id: nanoid(),
-              question: question.question,
-              choices: [
-                ...question.incorrect_answers.map((choice) => ({
-                  choice: choice,
-                  id: nanoid(),
-                  isChosen: false,
-                  isCorrect: false,
-                })),
-                {
-                  choice: question.correct_answer,
-                  id: nanoid(),
-                  isChosen: false,
-                  isCorrect: true,
-                },
-              ].sort((a, b) => 0.5 - Math.random()),
-            };
-          })
-        );
-        setLoaded(true);
-      });
-  }, [replay]);
+        data = data.results.map((item, i) => {
+          return {
+            id: nanoid(),
+            type: item.type,
+            question: item.question,
+            correct_answer: item.correct_answer,
+            every_choice:
+              item.type === 'boolean'
+                ? [item.correct_answer, item.incorrect_answers[0]]
+                    .sort()
+                    .reverse() // shuffle array so that true is always first
+                : fisherYates([item.correct_answer, ...item.incorrect_answers]),
+          }
+        })
+        setTriviaData(data)
+      })
+  }, [replay])
 
-  function handleStart() {
-    setStart(true);
+  // randomly shuffles an array
+  const fisherYates = (toShuffle = []) => {
+    for (let i = toShuffle.length - 1; i > 0; i -= 1) {
+      const randomIndex = Math.floor(Math.random() * (i + 1))
+      ;[toShuffle[i], toShuffle[randomIndex]] = [
+        toShuffle[randomIndex],
+        toShuffle[i],
+      ]
+    }
+    return toShuffle
   }
 
   //Change state so that the clicked button becomes selected by flipping the isChosen boolean value
-  function handleButton(event, id) {
-    const { name } = event.target;
-    setQuestions((prevQuestions) => {
-      return prevQuestions.map((question) => {
-        if (question.id === name) {
-          return {
-            ...question,
-            choices: question.choices.map((item) => {
-              if (item.id === id) {
-                return {
-                  ...item,
-                  isChosen: !item.isChosen,
-                };
-              } else {
-                return {
-                  ...item,
-                  isChosen: false,
-                };
-              }
-            }),
-          };
-        } else {
-          return question;
-        }
-      });
-    });
-  }
+  function handleSubmit(event) {}
 
   function calculateScore() {
-    for (let i = 0; i < questions.length; i++) {
-      for (let j = 0; j < questions[i].choices.length; j++) {
-        if (
-          questions[i].choices[j].isChosen &&
-          questions[i].choices[j].isCorrect
-        ) {
-          setScore((prevScore) => prevScore + 1);
-        }
-      }
-    }
+    // for (let i = 0; i < questions.length; i++) {
+    //   for (let j = 0; j < questions[i].choices.length; j++) {
+    //     if (
+    //       questions[i].choices[j].isChosen &&
+    //       questions[i].choices[j].isCorrect
+    //     ) {
+    //       setScore((prevScore) => prevScore + 1)
+    //     }
+    //   }
+    // }
   }
 
-  function handleDone() {
-    calculateScore();
-    setIsDone(true);
-  }
-
-  function handleReplay() {
-    setIsDone(false);
-    setLoaded(false);
-    setScore(0);
-    setReplay((prevReplay) => !prevReplay);
-  }
+  function handleStart() {}
 
   return (
     <>
       {start ? (
         <QuizScreen
-          data={questions}
-          isDone={isDone}
-          handleDone={handleDone}
-          handleReplay={handleReplay}
-          handleButton={handleButton}
+          data={triviaData}
+          gameOver={gameOver}
+          handleSubmit={handleSubmit}
           score={score}
-          loaded={loaded}
+          replay={replay}
         />
       ) : (
         <WelcomeScreen handleClick={handleStart} />
       )}
     </>
-  );
+  )
 }
