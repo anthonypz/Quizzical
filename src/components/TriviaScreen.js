@@ -7,7 +7,9 @@ export default function QuizScreen({
   updateAnswers,
   handleSubmit,
   score,
+  handleStartOver,
 }) {
+  // display the score visually using green and red colors
   let questions = () =>
     triviaData.map((item, idx) => {
       return (
@@ -58,10 +60,14 @@ export default function QuizScreen({
         </p>
       )}
       <div className='btn-group'>
-        <button className='trivia-btn' onClick={handleSubmit}>
+        <button type='submit' className='trivia-btn'>
           {gameOver ? 'Play again' : 'Check Answers'}
         </button>
-        {gameOver && <button className='trivia-btn'>Goto start menu</button>}
+        {gameOver && (
+          <button className='trivia-btn' onClick={handleStartOver}>
+            Goto start menu
+          </button>
+        )}
       </div>
     </form>
   )

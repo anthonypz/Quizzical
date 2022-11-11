@@ -4,7 +4,10 @@ import WelcomeScreen from './components/WelcomeScreen'
 import TriviaScreen from './components/TriviaScreen'
 
 export default function App() {
-  const [start, setStart] = React.useState(true)
+  const [start, setStart] = React.useState(false)
+  const [category, setCategory] = React.useState('')
+  console.log(category)
+
   const [triviaData, setTriviaData] = React.useState([]) // [{}, {}]
   const [answers, setAnswers] = React.useState({}) // {question0: "True", question1: "False"}
   const [gameOver, setGameOver] = React.useState(false)
@@ -12,7 +15,7 @@ export default function App() {
   const [replay, setReplay] = React.useState(false)
 
   React.useEffect(() => {
-    fetch('https://opentdb.com/api.php?amount=5')
+    fetch(`https://opentdb.com/api.php?amount=5&category=${Number(category)}`)
       .then((response) => response.json())
       .then((data) => {
         data = data.results.map((item, i) => {
@@ -31,7 +34,7 @@ export default function App() {
         })
         setTriviaData(data)
       })
-  }, [replay])
+  }, [replay, category])
 
   // randomly shuffles an array
   const fisherYates = (toShuffle = []) => {
@@ -53,6 +56,7 @@ export default function App() {
     })
   }
 
+  // restarts the game or calculates the scroe after submitting the TriviaScreen form
   const handleSubmit = (event) => {
     // stops the page from refreshing when submitting the form
     event.preventDefault()
@@ -76,7 +80,19 @@ export default function App() {
     return num
   }
 
-  const handleStart = () => {}
+  //
+  const handleStart = (event) => {
+    event.preventDefault()
+    setStart(true)
+    setCategory(event.target.category.value)
+  }
+
+  // resets the game and sends user back to the main menu
+  const handleStartOver = () => {
+    setStart(false)
+    setGameOver(false)
+    setScore(0)
+  }
 
   return (
     <>
@@ -88,9 +104,10 @@ export default function App() {
           updateAnswers={updateAnswers}
           handleSubmit={handleSubmit}
           score={score}
+          handleStartOver={handleStartOver}
         />
       ) : (
-        <WelcomeScreen handleClick={handleStart} />
+        <WelcomeScreen handleStart={handleStart} />
       )}
     </>
   )
