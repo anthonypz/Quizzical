@@ -7,7 +7,6 @@ export default function QuizScreen({
   updateAnswers,
   handleSubmit,
   score,
-  replay,
 }) {
   let questions = () =>
     triviaData.map((item, idx) => {

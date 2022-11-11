@@ -1,10 +1,10 @@
 import React from 'react'
 import { nanoid } from 'nanoid'
 import WelcomeScreen from './components/WelcomeScreen'
-import QuizScreen from './components/QuizScreen'
+import TriviaScreen from './components/TriviaScreen'
 
 export default function App() {
-  const [start, setStart] = React.useState(false)
+  const [start, setStart] = React.useState(true)
   const [triviaData, setTriviaData] = React.useState([]) // [{}, {}]
   const [answers, setAnswers] = React.useState({}) // {question0: "True", question1: "False"}
   const [gameOver, setGameOver] = React.useState(false)
@@ -45,33 +45,45 @@ export default function App() {
     return toShuffle
   }
 
-  //Change state so that the clicked button becomes selected by flipping the isChosen boolean value
-  function handleSubmit(event) {}
-
-  function calculateScore() {
-    // for (let i = 0; i < questions.length; i++) {
-    //   for (let j = 0; j < questions[i].choices.length; j++) {
-    //     if (
-    //       questions[i].choices[j].isChosen &&
-    //       questions[i].choices[j].isCorrect
-    //     ) {
-    //       setScore((prevScore) => prevScore + 1)
-    //     }
-    //   }
-    // }
+  const updateAnswers = (event) => {
+    console.log(event.target)
   }
 
-  function handleStart() {}
+  const handleSubmit = (event) => {
+    // stops the page from refreshing when submitting the form
+    event.preventDefault()
+    if (gameOver) {
+      setGameOver(false)
+      setReplay((prevReplay) => !prevReplay)
+      setScore(0)
+    } else {
+      setScore(calculateScore())
+      setGameOver(true)
+    }
+  }
+
+  const calculateScore = () => {
+    let num = 0
+    for (let i = 0; i < triviaData.length; i++) {
+      if (triviaData[i].correct_answer === answers[`question${i}`]) {
+        num++
+      }
+    }
+    return num
+  }
+
+  const handleStart = () => {}
 
   return (
     <>
       {start ? (
-        <QuizScreen
-          data={triviaData}
+        <TriviaScreen
+          triviaData={triviaData}
+          answers={answers}
           gameOver={gameOver}
+          updateAnswers={updateAnswers}
           handleSubmit={handleSubmit}
           score={score}
-          replay={replay}
         />
       ) : (
         <WelcomeScreen handleClick={handleStart} />
