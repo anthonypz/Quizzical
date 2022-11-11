@@ -45,8 +45,12 @@ export default function App() {
     return toShuffle
   }
 
+  // saves the selection options from the submitted form to state
   const updateAnswers = (event) => {
-    console.log(event.target)
+    setAnswers({
+      ...answers,
+      [event.target.name]: event.target.value,
+    })
   }
 
   const handleSubmit = (event) => {
