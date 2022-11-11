@@ -1,120 +1,114 @@
-import React from "react";
-import { nanoid } from "nanoid";
-import WelcomeScreen from "./components/WelcomeScreen";
-import QuizScreen from "./components/QuizScreen";
+import React from 'react'
+import { nanoid } from 'nanoid'
+import WelcomeScreen from './components/WelcomeScreen'
+import TriviaScreen from './components/TriviaScreen'
 
 export default function App() {
-  const [questions, setQuestions] = React.useState();
-  const [start, setStart] = React.useState(false);
-  const [loaded, setLoaded] = React.useState(false);
-  const [isDone, setIsDone] = React.useState(false);
-  const [replay, setReplay] = React.useState(false);
-  const [score, setScore] = React.useState(0);
+  const [start, setStart] = React.useState(false)
+  const [category, setCategory] = React.useState('')
+  console.log(category)
 
-  //Grab data from the API and organize it into state
+  const [triviaData, setTriviaData] = React.useState([]) // [{}, {}]
+  const [answers, setAnswers] = React.useState({}) // {question0: "True", question1: "False"}
+  const [gameOver, setGameOver] = React.useState(false)
+  const [score, setScore] = React.useState(0)
+  const [replay, setReplay] = React.useState(false)
+
   React.useEffect(() => {
-    fetch("https://opentdb.com/api.php?amount=5&difficulty=easy")
+    fetch(`https://opentdb.com/api.php?amount=5&category=${Number(category)}`)
       .then((response) => response.json())
       .then((data) => {
-        setQuestions(
-          data.results.map((question) => {
-            return {
-              id: nanoid(),
-              question: question.question,
-              choices: [
-                ...question.incorrect_answers.map((choice) => ({
-                  choice: choice,
-                  id: nanoid(),
-                  isChosen: false,
-                  isCorrect: false,
-                })),
-                {
-                  choice: question.correct_answer,
-                  id: nanoid(),
-                  isChosen: false,
-                  isCorrect: true,
-                },
-              ].sort((a, b) => 0.5 - Math.random()),
-            };
-          })
-        );
-        setLoaded(true);
-      });
-  }, [replay]);
-
-  function handleStart() {
-    setStart(true);
-  }
-
-  //Change state so that the clicked button becomes selected by flipping the isChosen boolean value
-  function handleButton(event, id) {
-    const { name } = event.target;
-    setQuestions((prevQuestions) => {
-      return prevQuestions.map((question) => {
-        if (question.id === name) {
+        data = data.results.map((item, i) => {
           return {
-            ...question,
-            choices: question.choices.map((item) => {
-              if (item.id === id) {
-                return {
-                  ...item,
-                  isChosen: !item.isChosen,
-                };
-              } else {
-                return {
-                  ...item,
-                  isChosen: false,
-                };
-              }
-            }),
-          };
-        } else {
-          return question;
-        }
-      });
-    });
+            id: nanoid(),
+            type: item.type,
+            question: item.question,
+            correct_answer: item.correct_answer,
+            every_choice:
+              item.type === 'boolean'
+                ? [item.correct_answer, item.incorrect_answers[0]]
+                    .sort()
+                    .reverse() // shuffle array so that true is always first
+                : fisherYates([item.correct_answer, ...item.incorrect_answers]),
+          }
+        })
+        setTriviaData(data)
+      })
+  }, [replay, category])
+
+  // randomly shuffles an array
+  const fisherYates = (toShuffle = []) => {
+    for (let i = toShuffle.length - 1; i > 0; i -= 1) {
+      const randomIndex = Math.floor(Math.random() * (i + 1))
+      ;[toShuffle[i], toShuffle[randomIndex]] = [
+        toShuffle[randomIndex],
+        toShuffle[i],
+      ]
+    }
+    return toShuffle
   }
 
-  function calculateScore() {
-    for (let i = 0; i < questions.length; i++) {
-      for (let j = 0; j < questions[i].choices.length; j++) {
-        if (
-          questions[i].choices[j].isChosen &&
-          questions[i].choices[j].isCorrect
-        ) {
-          setScore((prevScore) => prevScore + 1);
-        }
-      }
+  // saves the selection options from the submitted form to state
+  const updateAnswers = (event) => {
+    setAnswers({
+      ...answers,
+      [event.target.name]: event.target.value,
+    })
+  }
+
+  // restarts the game or calculates the scroe after submitting the TriviaScreen form
+  const handleSubmit = (event) => {
+    // stops the page from refreshing when submitting the form
+    event.preventDefault()
+    if (gameOver) {
+      setGameOver(false)
+      setReplay((prevReplay) => !prevReplay)
+      setScore(0)
+    } else {
+      setScore(calculateScore())
+      setGameOver(true)
     }
   }
 
-  function handleDone() {
-    calculateScore();
-    setIsDone(true);
+  const calculateScore = () => {
+    let num = 0
+    for (let i = 0; i < triviaData.length; i++) {
+      if (triviaData[i].correct_answer === answers[`question${i}`]) {
+        num++
+      }
+    }
+    return num
   }
 
-  function handleReplay() {
-    setIsDone(false);
-    setLoaded(false);
-    setScore(0);
-    setReplay((prevReplay) => !prevReplay);
+  //
+  const handleStart = (event) => {
+    event.preventDefault()
+    setStart(true)
+    setCategory(event.target.category.value)
+  }
+
+  // resets the game and sends user back to the main menu
+  const handleStartOver = () => {
+    setStart(false)
+    setGameOver(false)
+    setScore(0)
   }
 
   return (
     <>
       {start ? (
-        <QuizScreen
-          data={questions}
-          isDone={isDone}
-          handleDone={handleDone}
-          handleReplay={handleReplay}
-          handleButton={handleButton}
+        <TriviaScreen
+          triviaData={triviaData}
+          answers={answers}
+          gameOver={gameOver}
+          updateAnswers={updateAnswers}
+          handleSubmit={handleSubmit}
           score={score}
-          loaded={loaded}
+          handleStartOver={handleStartOver}
         />
       ) : (
-        <WelcomeScreen handleClick={handleStart} />
+        <WelcomeScreen handleStart={handleStart} />
       )}
     </>
-  );
+  )
 }
