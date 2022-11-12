@@ -6,35 +6,56 @@ import TriviaScreen from './components/TriviaScreen'
 export default function App() {
   const [start, setStart] = React.useState(false)
   const [category, setCategory] = React.useState('')
-  console.log(category)
 
+  const [token, setToken] = React.useState('')
   const [triviaData, setTriviaData] = React.useState([]) // [{}, {}]
   const [answers, setAnswers] = React.useState({}) // {question0: "True", question1: "False"}
   const [gameOver, setGameOver] = React.useState(false)
   const [score, setScore] = React.useState(0)
   const [replay, setReplay] = React.useState(false)
 
+  // retrieve a token so the user never gets the same question twice
   React.useEffect(() => {
-    fetch(`https://opentdb.com/api.php?amount=5&category=${Number(category)}`)
+    fetch('https://opentdb.com/api_token.php?command=request')
+      .then((response) => response.json())
+      .then((data) => setToken(data))
+  }, [])
+
+  React.useEffect(() => {
+    fetch(
+      `https://opentdb.com/api.php?amount=5&category=${Number(
+        category
+      )}&token=${token.token}`
+    )
       .then((response) => response.json())
       .then((data) => {
-        data = data.results.map((item, i) => {
-          return {
-            id: nanoid(),
-            type: item.type,
-            question: item.question,
-            correct_answer: item.correct_answer,
-            every_choice:
-              item.type === 'boolean'
-                ? [item.correct_answer, item.incorrect_answers[0]]
-                    .sort()
-                    .reverse() // shuffle array so that true is always first
-                : fisherYates([item.correct_answer, ...item.incorrect_answers]),
-          }
-        })
-        setTriviaData(data)
+        if (data.response_code === 4) {
+          // reset token
+          setToken(
+            `https://opentdb.com/api_token.php?command=reset&token=${token}`
+          )
+        } else {
+          data = data.results.map((item, i) => {
+            return {
+              id: nanoid(),
+              type: item.type,
+              question: item.question,
+              correct_answer: item.correct_answer,
+              every_choice:
+                item.type === 'boolean'
+                  ? [item.correct_answer, item.incorrect_answers[0]]
+                      .sort()
+                      .reverse() // shuffle array so that true is always first
+                  : fisherYates([
+                      item.correct_answer,
+                      ...item.incorrect_answers,
+                    ]),
+            }
+          })
+          setTriviaData(data)
+        }
       })
-  }, [replay, category])
+  }, [replay, category, token])
 
   // randomly shuffles an array
   const fisherYates = (toShuffle = []) => {
@@ -61,8 +82,9 @@ export default function App() {
     // stops the page from refreshing when submitting the form
     event.preventDefault()
     if (gameOver) {
-      setGameOver(false)
+      setTriviaData([])
       setReplay((prevReplay) => !prevReplay)
+      setGameOver(false)
       setScore(0)
     } else {
       setScore(calculateScore())
