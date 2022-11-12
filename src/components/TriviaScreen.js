@@ -52,23 +52,27 @@ export default function QuizScreen({
     })
 
   return (
-    <form className='trivia-screen' onSubmit={handleSubmit}>
-      {questions()}
-      {gameOver && (
-        <p className='final-score'>
-          You answered {score} of 5 questions correctly.
-        </p>
+    <>
+      {triviaData.length > 0 && (
+        <form className='trivia-screen' onSubmit={handleSubmit}>
+          {questions()}
+          {gameOver && (
+            <p className='final-score'>
+              You answered {score} of 5 questions correctly.
+            </p>
+          )}
+          <div className='btn-group'>
+            <button type='submit' className='trivia-btn'>
+              {gameOver ? 'Play Again' : 'Check Answers'}
+            </button>
+            {gameOver && (
+              <button className='trivia-btn' onClick={handleStartOver}>
+                GoTo Start Menu
+              </button>
+            )}
+          </div>
+        </form>
       )}
-      <div className='btn-group'>
-        <button type='submit' className='trivia-btn'>
-          {gameOver ? 'Play again' : 'Check Answers'}
-        </button>
-        {gameOver && (
-          <button className='trivia-btn' onClick={handleStartOver}>
-            Goto start menu
-          </button>
-        )}
-      </div>
-    </form>
+    </>
   )
 }
