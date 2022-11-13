@@ -112,6 +112,7 @@ export default function App() {
     setStart(false)
     setGameOver(false)
     setScore(0)
+    setCategory('')
   }
 
   return (
