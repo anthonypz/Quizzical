@@ -23,9 +23,7 @@ export default function App() {
 
   React.useEffect(() => {
     fetch(
-      `https://opentdb.com/api.php?amount=5&category=${Number(
-        category
-      )}&token=${token.token}`
+      `https://opentdb.com/api.php?amount=5&category=${category}&token=${token.token}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -106,7 +104,7 @@ export default function App() {
   const handleStart = (event) => {
     event.preventDefault()
     setStart(true)
-    setCategory(event.target.category.value)
+    setCategory(Number(event.target.category.value))
   }
 
   // resets the game and sends user back to the main menu
