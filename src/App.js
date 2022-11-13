@@ -32,7 +32,7 @@ export default function App() {
         if (data.response_code === 4) {
           // reset token
           setToken(
-            `https://opentdb.com/api_token.php?command=reset&token=${token}`
+            `https://opentdb.com/api_token.php?command=reset&token=${token.token}`
           )
         } else {
           data = data.results.map((item, i) => {
