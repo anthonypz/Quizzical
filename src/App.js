@@ -22,38 +22,48 @@ export default function App() {
   }, [])
 
   React.useEffect(() => {
-    fetch(
-      `https://opentdb.com/api.php?amount=5&category=${category}&token=${token.token}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.response_code === 4) {
-          // reset token
-          setToken(
-            `https://opentdb.com/api_token.php?command=reset&token=${token.token}`
-          )
-        } else {
-          data = data.results.map((item, i) => {
-            return {
-              id: nanoid(),
-              type: item.type,
-              question: item.question,
-              correct_answer: item.correct_answer,
-              every_choice:
-                item.type === 'boolean'
-                  ? [item.correct_answer, item.incorrect_answers[0]]
-                      .sort()
-                      .reverse() // shuffle array so that true is always first
-                  : fisherYates([
-                      item.correct_answer,
-                      ...item.incorrect_answers,
-                    ]),
+    let ignore = false
+    // only fetch data once the token has been retrieved and the game has started
+    token &&
+      start &&
+      fetch(
+        `https://opentdb.com/api.php?amount=5&category=${category}&token=${token.token}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.response_code === 4) {
+            // reset token
+            setToken(
+              `https://opentdb.com/api_token.php?command=reset&token=${token.token}`
+            )
+          } else {
+            data = data.results.map((item, i) => {
+              return {
+                id: nanoid(),
+                type: item.type,
+                question: item.question,
+                correct_answer: item.correct_answer,
+                every_choice:
+                  item.type === 'boolean'
+                    ? [item.correct_answer, item.incorrect_answers[0]]
+                        .sort()
+                        .reverse() // shuffle array so that true is always first
+                    : fisherYates([
+                        item.correct_answer,
+                        ...item.incorrect_answers,
+                      ]),
+              }
+            })
+            if (!ignore) {
+              setTriviaData(data)
             }
-          })
-          setTriviaData(data)
-        }
-      })
-  }, [replay, category, token])
+          }
+        })
+
+    return () => {
+      ignore = true
+    }
+  }, [replay, category, token, start])
 
   // randomly shuffles an array
   const fisherYates = (toShuffle = []) => {
