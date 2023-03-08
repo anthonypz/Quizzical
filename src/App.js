@@ -123,6 +123,7 @@ export default function App() {
     setGameOver(false)
     setScore(0)
     setCategory('')
+    setTriviaData('')
   }
 
   return (
