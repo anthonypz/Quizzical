@@ -2,7 +2,7 @@
 
 Quizzical is a trivia app that generates questions based on your selected category. The project is built with React and uses the [Open Trivia Database](https://opentdb.com/) API as the source for trivia data.
 
-**Link to project:** https://quizzical.pereza.dev/
+**Link to project:** https://quizzical-trivia.netlify.app/
 
 <img src="https://github.com/anthonypz/quizzical/blob/main/docs/images/quizzical.webp" width=300> <img src="https://github.com/anthonypz/quizzical/blob/main/docs/images/quizzical2.webp" width=300>
 
